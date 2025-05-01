@@ -6,16 +6,16 @@ import se.iths.webservices.service.annotation.Zone;
 
 import java.math.BigDecimal;
 
-@DeliveryZone(Zone.A)
-public class Sheeeep implements DeliveryService {
+@DeliveryZone(Zone.B)
+public class NoGoodDelivery implements DeliveryService {
 
     @Override
     public String getName() {
-        return "Sheeeep";
+        return "NoGoodDelivery";
     }
 
     @Override
     public BigDecimal getPrice() {
-        return BigDecimal.TEN;
+        return BigDecimal.ZERO;
     }
 }

@@ -1,6 +1,8 @@
 package se.iths.webservices.consumer;
 
 import se.iths.webservices.service.DeliveryService;
+import se.iths.webservices.service.annotation.DeliveryZone;
+import se.iths.webservices.service.annotation.Zone;
 
 import java.util.*;
 
@@ -9,46 +11,40 @@ public class Main {
     public static void main(String[] args) {
 
         ServiceLoader<DeliveryService> deliveryServiceLoader = ServiceLoader.load(DeliveryService.class);
-        Map<String, DeliveryService> deliveryServiceMap = createDeliveryServiceMapWithIdKey(deliveryServiceLoader);
-        DeliveryService deliveryService = getUserChoiceOfDeliveryService(deliveryServiceMap);
-        System.out.printf("\nYour order will be sent with delivery company:\nName: %-20s Price: %6s kr", deliveryService.getName(), deliveryService.getPrice().toString());
-    }
 
-    private static Map<String, DeliveryService> createDeliveryServiceMapWithIdKey(ServiceLoader<DeliveryService> deliveryServiceLoader) {
+        List<DeliveryService> deliveryServices = deliveryServiceLoader.stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(ds -> ds.getClass().getAnnotation(DeliveryZone.class).value().equals(Zone.A))
+                .toList();
 
-        Map<String, DeliveryService> deliveryServiceMap = new HashMap<>();
-        int id = 1;
-
-        for(DeliveryService deliveryService : deliveryServiceLoader) {
-            deliveryServiceMap.put(Integer.toString(id), deliveryService);
-            id++;
-        }
-
-        if(deliveryServiceMap.isEmpty()) {
+        if(deliveryServices.isEmpty()) {
             throw new RuntimeException("No delivery service found");
         }
 
-        return deliveryServiceMap;
-    }
-
-    private static DeliveryService getUserChoiceOfDeliveryService(Map<String, DeliveryService> deliveryServiceMap) {
-
         Scanner scanner = new Scanner(System.in);
+        DeliveryService deliveryService;
 
-        while(true){
+        while(true) {
 
-            System.out.println("\nPlease choose a delivery company for your order:");
-            deliveryServiceMap.forEach((id, service) -> System.out.printf("\n%s. Name: %-20s Price: %6s kr", id, service.getName(), service.getPrice().toString()));
-            System.out.print("\nEnter the number of your choice: ");
-            DeliveryService deliveryService = deliveryServiceMap.get(scanner.nextLine());
+            try {
 
-            if(deliveryService != null) {
+                System.out.println("\nPlease choose a delivery company for your order:");
+                int i = 1;
+
+                for(DeliveryService ds : deliveryServices) {
+                    System.out.printf("\n%s. Name: %-20s Price: %6.2f kr", i++, ds.getName(), ds.getPrice());
+                }
+
+                System.out.print("\nEnter the number of your choice: ");
+                deliveryService = deliveryServices.get(Integer.parseInt(scanner.nextLine()) - 1);
                 scanner.close();
-                return deliveryService;
+                break;
+
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+
+                System.out.println("\nPlease enter a valid choice for your delivery service.");
             }
-
-            System.out.println("\nPlease enter a valid choice for your delivery service.");
         }
+        System.out.printf("\nYour order will be sent with delivery company:\nName: %-20s Price: %6s kr", deliveryService.getName(), deliveryService.getPrice().toString());
     }
-
 }
