@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface DeliveryZone {
-    Zone value() default Zone.A;
+    Zone value() default Zone.NO_ZONE;
 }
