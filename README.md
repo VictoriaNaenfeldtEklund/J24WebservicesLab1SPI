@@ -4,7 +4,7 @@ The DeliveryService providers are filtered by the annotation Zone in this implem
 
 ## Run with Docker
 
-1. Clone this repository
+1. Clone this repository and package the code
 2. Build Docker image
    
    ```docker build -t my-app-name .```
